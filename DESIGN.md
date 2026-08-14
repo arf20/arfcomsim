@@ -21,14 +21,19 @@ The objective is to meet the demands of the workers, ensure their continued and 
 The needs are organized in tiers. Developing the economy allows meeting more complex needs,
 realizing the socialist utopia.
 
+The people's needs derive from theirdemocratic will, here modelled as best as possible.
+
 The economy is divided in sectors, each one with a tech tree. They meet different but
 correlated demands. Outputs from one can be used in inputs of another.
 
-The player controls a general design of the economy organized in five year plans,
-and the adjustment of the implementation with manual and automatic tools for it.
+The player draws up on its own a macroeconomic plan (5 year plans),
+and the adjustment of the implementation (strategic and detail planning)
+with manual and automatic tools for it.
 
 When computer systems are developed, economic planning and adjusting can be increasily
 automated with computer algorithms.
+
+
 
 ## Design
 
@@ -36,6 +41,14 @@ The initial characteristics of the economy are described in a map file. The game
 format follows the same format. This map also contains lore and assets.
 
 The engine must be as generic as reasonable to load different kinds of maps.
+
+## User Interface
+
+There are tabs which allow the player to see at a glance the different aspects of
+the country. A geographic map with icons representing factories, mines and other production
+sites; the tech trees tab; an input and output visualization, etc.
+
+The player starts with a canvas of a few factories
 
 # Bibliography
 
