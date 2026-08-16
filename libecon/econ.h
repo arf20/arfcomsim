@@ -54,7 +54,8 @@ typedef struct {
 
 typedef struct {
     product_t  *product;
-    uint32_t    quant;
+    uint32_t    quant_gross;
+    uint32_t    quant_net; /* opt */
 } quantity_t;
 
 typedef struct {
@@ -65,8 +66,7 @@ typedef struct {
     quantity_t *inputs;
     size_t      inputs_size, inputs_capacity;
     /* output */
-    quantity_t *outputs;
-    size_t      outputs_size, outputs_capacity;
+    quantity_t  output;
 
     uint32_t    labour_total;
 } industry_io_t;
@@ -90,6 +90,12 @@ product_t *econ_product_new(econ_t *econ, uint32_t id, const char *name,
 
 industry_io_t *econ_industry_new(econ_t *econ, uint32_t id, const char *name, 
     uint32_t direct_labour, labour_unit_t labour_unit);
+
+quantity_t *econ_industry_input_add(industry_io_t *ind, product_t *product,
+    uint32_t quant);
+
+void econ_industry_output_add(industry_io_t *ind, product_t *product,
+    uint32_t quant_gross, uint32_t quant_net);
 
 uint32_t econ_labour_total(econ_t *econ, labour_unit_t unit);
 

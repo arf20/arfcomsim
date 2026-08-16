@@ -34,7 +34,7 @@ const unit_t units[] = {
     { UNIT_KILOGRAM,    "kilogram",     "kg" },
     { UNIT_LITER,       "liter",        "l" },
     { UNIT_TON,         "metric ton",   "tn" }, /* metric */
-    { UNIT_UNITS,       "units",        "u" }
+    { UNIT_UNITS,       "units",        "uds" }
 };
 
 
@@ -94,7 +94,6 @@ industry_io_t *econ_industry_new(econ_t *econ, uint32_t id, const char *name,
         id ? id : econ->industries_size + 1;
     econ->industries[econ->industries_size].name = strdup(name);
 
-
     switch (labour_unit) {
         case LABOUR_WORKERS_WEEK: break;
         case LABOUR_WORK_HOURS: direct_labour /= econ->workweek_hours;
@@ -102,6 +101,29 @@ industry_io_t *econ_industry_new(econ_t *econ, uint32_t id, const char *name,
     econ->industries[econ->industries_size].labour_direct = direct_labour;
 
     return &econ->industries[econ->industries_size++];
+}
+
+quantity_t *econ_industry_input_add(industry_io_t *ind, product_t *product,
+    uint32_t quant)
+{
+    if (ind->inputs_size + 1 > ind->inputs_capacity) {
+        ind->inputs_capacity *= 2;
+        ind->inputs = realloc(ind->inputs,
+            ind->inputs_capacity * sizeof(product_t));
+    }
+
+    ind->inputs[ind->inputs_size].product = product;
+    ind->inputs[ind->inputs_size].quant_gross = quant;
+
+    return &ind->inputs[ind->inputs_size++];
+}
+
+void econ_industry_output_add(industry_io_t *ind, product_t *product,
+    uint32_t quant_gross, uint32_t quant_net)
+{
+    ind->output.product = product;
+    ind->output.quant_gross = quant_gross;
+    ind->output.quant_net = quant_net;
 }
 
 uint32_t econ_labour_total(econ_t *econ, labour_unit_t unit)
