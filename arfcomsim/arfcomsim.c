@@ -46,26 +46,36 @@ int main()
     econ_industry_input_add(ind_oil, prod_oil, 500);
     econ_industry_output_add(ind_oil, prod_oil, 3000, 500);
 
-    printf("economy:\n  workweek: %d hours\n  products[%ld]:\n",
-        econ->workweek_hours, econ->products_size);
+    printf("economy:\n  workweek: %.2f hours\n  total labour: %.2f person-weeks\n"
+        "  products[%ld]:\n",
+        econ->workweek_hours, econ_labour_total(econ, LABOUR_WORKERS_WEEK),
+        econ->products_size);
     for (int i = 0; i < econ->products_size; i++)
         printf("    %d: %s in %s\n", econ->products[i].id,
             econ->products[i].name, econ->products[i].unit->name_short);
     printf("  industries[%ld]:\n", econ->industries_size);
     for (int i = 0; i < econ->industries_size; i++) {
-        printf("    %d: %s employs %d people-week\n", econ->industries[i].id,
+        printf("    %d: %s employs %.2f people-week\n", econ->industries[i].id,
             econ->industries[i].name, econ->industries[i].labour_direct);
         for (int j = 0; j < econ->industries[i].inputs_size; j++)
-            printf("      input %s quantity %d %s\n",
+            printf("      input %s quantity %.2f %s\n",
                 econ->industries[i].inputs[j].product->name,
                 econ->industries[i].inputs[j].quant_gross,
                 econ->industries[i].inputs[j].product->unit->name_short);
-        printf("      output %s quantity %d gross %d net %s\n",
+        printf("      output %s quantity %.2f gross %.2f net %s\n",
             econ->industries[i].output.product->name,
             econ->industries[i].output.quant_gross,
             econ->industries[i].output.quant_net,
             econ->industries[i].output.product->unit->name_short);
     }
+
+    int iter = econ_labour_content_solve(econ, 3);
+
+    printf("\nconverged in %d iterations\n", iter);
+    for (int i = 0; i < econ->industries_size; i++)
+        printf("  %s: %.2f hours/%s\n", econ->industries[i].output.product->name,
+            /*econ->workweek_hours* */ econ->industries[i].labour_content,
+            econ->industries[i].output.product->unit->name_short);
 
     econ_destroy(econ);
 }

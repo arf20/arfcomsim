@@ -54,21 +54,21 @@ typedef struct {
 
 typedef struct {
     product_t  *product;
-    uint32_t    quant_gross;
-    uint32_t    quant_net; /* opt */
+    float       quant_gross;
+    float       quant_net; /* opt - for outputs */
 } quantity_t;
 
 typedef struct {
     uint32_t    id;
     char       *name;
     /* input */
-    uint32_t    labour_direct;
+    float       labour_direct;
     quantity_t *inputs;
     size_t      inputs_size, inputs_capacity;
     /* output */
     quantity_t  output;
 
-    uint32_t    labour_total;
+    float       labour_content; /* labour cost per unit */
 } industry_io_t;
 
 typedef struct {
@@ -77,7 +77,7 @@ typedef struct {
     industry_io_t  *industries;
     size_t          industries_size, industries_capacity;
 
-    uint32_t        workweek_hours;
+    float           workweek_hours;
 } econ_t;
 
 
@@ -97,5 +97,8 @@ quantity_t *econ_industry_input_add(industry_io_t *ind, product_t *product,
 void econ_industry_output_add(industry_io_t *ind, product_t *product,
     uint32_t quant_gross, uint32_t quant_net);
 
-uint32_t econ_labour_total(econ_t *econ, labour_unit_t unit);
+float econ_labour_total(econ_t *econ, labour_unit_t unit);
+
+int econ_labour_content_solve(econ_t *econ, uint32_t precision);
+int econ_labour_content_solve2(econ_t *econ, uint32_t precision);
 

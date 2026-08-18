@@ -22,7 +22,9 @@
 
 #include "econ.h"
 
+#include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #define INIT_VEC_SIZE   1024
@@ -74,7 +76,7 @@ product_t *econ_product_new(econ_t *econ, uint32_t id, const char *name,
             econ->products_capacity * sizeof(product_t));
     }
 
-    econ->products[econ->products_size].id = id ? id : econ->products_size + 1;
+    econ->products[econ->products_size].id = id ? id : econ->products_size;
     econ->products[econ->products_size].name = strdup(name);
     econ->products[econ->products_size].unit = &units[unit_id];
 
@@ -91,7 +93,7 @@ industry_io_t *econ_industry_new(econ_t *econ, uint32_t id, const char *name,
     }
 
     econ->industries[econ->industries_size].id =
-        id ? id : econ->industries_size + 1;
+        id ? id : econ->industries_size;
     econ->industries[econ->industries_size].name = strdup(name);
 
     switch (labour_unit) {
@@ -126,9 +128,9 @@ void econ_industry_output_add(industry_io_t *ind, product_t *product,
     ind->output.quant_net = quant_net;
 }
 
-uint32_t econ_labour_total(econ_t *econ, labour_unit_t unit)
+float econ_labour_total(econ_t *econ, labour_unit_t unit)
 {
-    uint32_t l = 0;
+    float l = 0;
     for (int i = 0; i < econ->industries_size; i++)
         l += econ->industries[i].labour_direct;
     
@@ -136,5 +138,114 @@ uint32_t econ_labour_total(econ_t *econ, labour_unit_t unit)
         case LABOUR_WORKERS_WEEK: return l;
         case LABOUR_WORK_HOURS: return l * econ->workweek_hours;
     }
+}
+
+/**
+ * Matrix Gauss-Seidel method
+ */
+int econ_labour_content_solve(econ_t *econ, uint32_t precision) {
+    size_t N = econ->industries_size;
+    float e = powf(10.0f, -(float)precision);
+
+    /* alloc */
+    float (*M)[N][N] = malloc(sizeof(*M));
+    float (*x)[N] = malloc(sizeof(*x));
+    float (*b)[N] = malloc(sizeof(*x));
+    memset(M, 0, sizeof(*M));
+    memset(M, 0, sizeof(*x));
+    memset(M, 0, sizeof(*b));
+
+    /* init */
+    for (int i = 0; i < N; i++) {
+        (*x)[econ->industries[i].output.product->id] = econ->industries[i].labour_direct;
+
+        for(int j = 0; j < econ->industries[i].inputs_size; j++) {
+            (*M)[econ->industries[i].output.product->id]
+                [econ->industries[i].inputs[j].product->id] =
+                    econ->industries[i].inputs[j].quant_gross;
+        }
+
+        (*M)[econ->industries[i].output.product->id]
+            [econ->industries[i].output.product->id] -=
+                econ->industries[i].output.quant_gross;
+
+        (*b)[econ->industries[i].output.product->id] =
+            -econ->industries[i].labour_direct;
+    }
+
+    /* solve */
+    int converged = 0, iter = 0;
+
+    while (!converged) {
+        converged = 1;
+
+        for(int i = 0; i < N; ++i) {
+            float s = 0.0f;
+
+            for(int j = 0; j < N; ++j) {
+                if(j != i) {
+                    s += (*M)[i][j] * (*x)[j];
+                }
+            }
+
+            float xp = (1.0f / (*M)[i][i]) * ((*b)[i] - s);
+            converged &= fabsf((*x)[i] - xp) < e;
+            (*x)[i] = xp;
+            printf("== %d: %f\n", i, xp);
+        }
+
+        iter++;
+    }
+
+    for (int i = 0; i < N; i++)
+        econ->industries[i].labour_content = (*x)[i];
+
+    return iter;
+}
+
+/* List Gauss-Seidel method */
+int econ_labour_content_solve2(econ_t *econ, uint32_t precision) {
+    float e = powf(10.0f, -(float)precision);
+
+    /* init */
+    for (int i = 0; i < econ->industries_size; ++i)
+        econ->industries[i].labour_content = econ->industries[i].labour_direct;
+
+    /* solve */
+    int converged = 0, iter = 0;
+
+    while (!converged) {
+        converged = 1;
+
+        for (int i = 0; i < econ->industries_size; i++) {
+            float s = 0.0f;
+
+            float self_input = 0.0f;
+
+            for (int j = 0; j < econ->industries[i].inputs_size; j++) {
+                if (econ->industries[i].output.product->id !=
+                    econ->industries[i].inputs[j].product->id)
+                {
+                    s += econ->industries[i].inputs[j].quant_gross *
+                        econ->industries[i].labour_content;
+                } else {
+                    self_input = econ->industries[i].inputs[j].quant_gross;
+                }
+            }
+
+            self_input -= econ->industries[i].output.quant_gross;
+
+            float xp = (1.0f / self_input) *
+                (-econ->industries[i].labour_direct - s);
+            converged &= fabsf(econ->industries[i].labour_content - xp) < e;
+            econ->industries[i].labour_content = xp;
+
+            printf("== %d: %f\n", i, xp);
+        }
+
+        iter++;
+    }
+
+    return iter;
 }
 

@@ -10,5 +10,5 @@ file(GLOB SRC_ARFCOMSIM "arfcomsim/*.c")
 add_library(econ STATIC ${SRC_LIBECON})
 
 add_executable(arfcomsim ${SRC_ARFCOMSIM})
-target_link_libraries(arfcomsim econ)
+target_link_libraries(arfcomsim econ m)
 
