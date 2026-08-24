@@ -191,7 +191,6 @@ int econ_labour_content_solve(econ_t *econ, uint32_t precision) {
             float xp = (1.0f / (*M)[i][i]) * ((*b)[i] - s);
             converged &= fabsf((*x)[i] - xp) < e;
             (*x)[i] = xp;
-            printf("== %d: %f\n", i, xp);
         }
 
         iter++;
@@ -227,7 +226,7 @@ int econ_labour_content_solve2(econ_t *econ, uint32_t precision) {
                     econ->industries[i].inputs[j].product->id)
                 {
                     s += econ->industries[i].inputs[j].quant_gross *
-                        econ->industries[i].labour_content;
+                        econ->industries[econ->industries[i].inputs[j].product->id].labour_content;
                 } else {
                     self_input = econ->industries[i].inputs[j].quant_gross;
                 }
@@ -239,8 +238,6 @@ int econ_labour_content_solve2(econ_t *econ, uint32_t precision) {
                 (-econ->industries[i].labour_direct - s);
             converged &= fabsf(econ->industries[i].labour_content - xp) < e;
             econ->industries[i].labour_content = xp;
-
-            printf("== %d: %f\n", i, xp);
         }
 
         iter++;

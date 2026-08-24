@@ -69,7 +69,7 @@ int main()
             econ->industries[i].output.product->unit->name_short);
     }
 
-    int iter = econ_labour_content_solve(econ, 3);
+    int iter = econ_labour_content_solve2(econ, 3);
 
     printf("\nconverged in %d iterations\n", iter);
     for (int i = 0; i < econ->industries_size; i++)
