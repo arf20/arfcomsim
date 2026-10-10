@@ -15,5 +15,7 @@
  - [Papers Please Theme](https://www.youtube.com/watch?v=DbBB1j5qAFs) [Good](https://www.youtube.com/watch?v=h2FxJrK9Amw) [Bad](https://www.youtube.com/watch?v=J_3Zad-e9f4)
  - [Smooth Rest Cafe](https://www.youtube.com/watch?v=GHEzUtkNuVo)
  - [STALKER: Clear Sky - Bandit Radio](https://www.youtube.com/watch?v=j_podzD4cSA)
+ - [Desperation March - Teto](https://www.youtube.com/watch?v=K31UFikhR5w)
+ - [Arbeitslosenmarsch](https://www.youtube.com/watch?v=6KFVVKFxr60)
  - [March of the Union of Socialist Eurasia](https://www.youtube.com/watch?v=55vZvYdjX70)
 
